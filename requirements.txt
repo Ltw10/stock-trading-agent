@@ -1,0 +1,19 @@
+# News & social
+requests>=2.31.0
+praw>=7.7.0
+
+# Database
+supabase>=2.0.0
+
+# NLP
+transformers>=4.35.0
+torch>=2.0.0
+spacy>=3.7.0
+openai>=1.0.0
+
+# Broker
+alpaca-trade-api>=3.0.0
+
+# Scheduling & utils
+apscheduler>=3.10.0
+python-dotenv>=1.0.0
