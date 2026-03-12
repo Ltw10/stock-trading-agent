@@ -50,7 +50,10 @@ Supabase hosts the PostgreSQL database and stores news articles, Reddit posts, s
    - Confirm there are no errors and that tables appear under **Table Editor**: `news_articles`, `reddit_posts`, `sentiment_scores`, `trade_signals`, `trades`, `logs`.
 
 5. **If you see "Invalid API key" in logs**  
-   Use the **service_role** key (the long secret in Settings → API keys), not the anon/publishable key. The backend needs service_role for table inserts. Update `SUPABASE_KEY` in Railway and restart.
+   - Use the **service_role** key: Supabase → Settings → API keys → click **Reveal** next to service_role → copy the whole key (one long line, 200+ characters).  
+   - In Railway, set `SUPABASE_KEY` to that value. Paste it as a **single line** with no newlines or extra spaces (multi-line paste can break the key).  
+   - Ensure `SUPABASE_URL` and `SUPABASE_KEY` are from the **same** Supabase project.  
+   - Restart the worker after changing variables.
 
 6. **If you already had `news_articles` without `data_source`**  
    Run this once in the SQL Editor:

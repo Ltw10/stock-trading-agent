@@ -11,6 +11,12 @@ def _env(key: str, default: str = "") -> str:
     return (os.getenv(key, default) or "").strip()
 
 
+def _env_secret(key: str) -> str:
+    """Get secret env var, strip and remove any accidental newlines (e.g. paste into Railway)."""
+    raw = (os.getenv(key, "") or "").strip()
+    return raw.replace("\n", "").replace("\r", "").strip()
+
+
 # Finnhub (primary news per ticker)
 FINNHUB_API_KEY = _env("FINNHUB_API_KEY")
 
@@ -25,9 +31,9 @@ REDDIT_CLIENT_ID = _env("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = _env("REDDIT_CLIENT_SECRET")
 REDDIT_USER_AGENT = _env("REDDIT_USER_AGENT") or "trading-bot/1.0"
 
-# Supabase
+# Supabase (key is a long JWT; normalize so paste newlines don't break it)
 SUPABASE_URL = _env("SUPABASE_URL")
-SUPABASE_KEY = _env("SUPABASE_KEY")
+SUPABASE_KEY = _env_secret("SUPABASE_KEY")
 
 # Alpaca
 ALPACA_API_KEY = _env("ALPACA_API_KEY")

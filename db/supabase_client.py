@@ -27,10 +27,14 @@ def get_client() -> Client:
             if "invalid api key" in err_msg or "invalid api key" in str(type(e).__name__):
                 if not _supabase_auth_error_logged:
                     _supabase_auth_error_logged = True
+                    key_len = len(config.SUPABASE_KEY)
                     logger.error(
-                        "Supabase Invalid API key: use the service_role key (secret) for backend, "
-                        "not the anon/publishable key. In Supabase: Settings → API keys → service_role (secret). "
-                        "Redeploy after updating SUPABASE_KEY."
+                        "Supabase Invalid API key. Troubleshooting: (1) In Railway, SUPABASE_KEY must be "
+                        "the full service_role secret (long JWT, usually 200+ chars; current length=%d). "
+                        "(2) When pasting in Railway Variables, paste in one line with no newlines. "
+                        "(3) SUPABASE_URL and SUPABASE_KEY must be from the same Supabase project. "
+                        "(4) In Supabase: Settings → API keys → copy the 'service_role' secret (click Reveal).",
+                        key_len,
                     )
             raise
     return _client
