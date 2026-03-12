@@ -291,6 +291,10 @@ Railway runs the agent as a long-running worker (not a web server).
    - Push to the connected branch to trigger a deploy, or use **Deploy** in the dashboard.  
    - Check **Logs** to confirm the scheduler starts and that news ingestion runs. Reddit runs only if those credentials are set.
 
+6. **If the build times out**  
+   - The repo includes a **Dockerfile** that installs CPU-only PyTorch first (faster and smaller). Railway will use it automatically if present, which should keep the build within the timeout.  
+   - If Railway is still using Nixpacks, set the **Builder** to **Dockerfile** in the service settings (Settings → Build → Dockerfile path).
+
 ---
 
 ## 9. Optional: Slack (alerts)
