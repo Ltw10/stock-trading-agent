@@ -39,8 +39,8 @@ Supabase hosts the PostgreSQL database and stores news articles, Reddit posts, s
 
 3. **Get URL and API key**  
    - **URL:** In the left sidebar go to **Integrations** → **Data API**. Copy the **API URL** (e.g. `https://xxxxxxxx.supabase.co`). This is `SUPABASE_URL`.  
-   - **Key:** In the left sidebar go to **Settings** → **API keys**. Copy the key labeled **Publishable key**. This is `SUPABASE_KEY`.  
-   - **Note:** Keep your API key private. Do not commit it to version control or expose it in frontend code.
+   - **Key:** In the left sidebar go to **Settings** → **API keys**. For this backend agent you must use the **service_role** key (the secret key, not the anon/publishable key). The service_role key has full access and is required for server-side inserts. Copy it into `SUPABASE_KEY`.  
+   - **Note:** Never expose the service_role key in frontend code or commit it to version control.
 
 4. **Run the schema**  
    - In the left sidebar: **SQL Editor**.  
@@ -49,7 +49,10 @@ Supabase hosts the PostgreSQL database and stores news articles, Reddit posts, s
    - Click **Run** (or Cmd/Ctrl+Enter).  
    - Confirm there are no errors and that tables appear under **Table Editor**: `news_articles`, `reddit_posts`, `sentiment_scores`, `trade_signals`, `trades`, `logs`.
 
-5. **If you already had `news_articles` without `data_source`**  
+5. **If you see "Invalid API key" in logs**  
+   Use the **service_role** key (the long secret in Settings → API keys), not the anon/publishable key. The backend needs service_role for table inserts. Update `SUPABASE_KEY` in Railway and restart.
+
+6. **If you already had `news_articles` without `data_source`**  
    Run this once in the SQL Editor:
    ```sql
    ALTER TABLE news_articles
@@ -62,7 +65,7 @@ Supabase hosts the PostgreSQL database and stores news articles, Reddit posts, s
 | Variable        | Where to get it                              |
 |-----------------|-----------------------------------------------|
 | `SUPABASE_URL`  | Integrations → Data API (in left sidebar)     |
-| `SUPABASE_KEY`  | Settings → API keys → **Publishable key**    |
+| `SUPABASE_KEY`  | Settings → API keys → **service_role** (secret key for backend) |
 
 ---
 
@@ -292,8 +295,13 @@ Railway runs the agent as a long-running worker (not a web server).
    - Check **Logs** to confirm the scheduler starts and that news ingestion runs. Reddit runs only if those credentials are set.
 
 6. **If the build times out**  
-   - The repo includes a **Dockerfile** that installs CPU-only PyTorch first (faster and smaller). Railway will use it automatically if present, which should keep the build within the timeout.  
-   - If Railway is still using Nixpacks, set the **Builder** to **Dockerfile** in the service settings (Settings → Build → Dockerfile path).
+   - The repo includes a **Dockerfile** that installs CPU-only PyTorch first (faster and smaller). Railway will use it automatically if present.
+
+7. **"API key not set" in logs even though you added it**  
+   - **Exact name:** Variable names are case-sensitive. Use **`FINNHUB_API_KEY`** (two N's in FINN). A typo like `FINHUB_API_KEY` or `Finnhub_Api_Key` will not work.  
+   - **Where to set:** In Railway, open your **service** (the app), then **Variables** (or **Settings** → **Variables**). Add the variable there so it’s available at runtime.  
+   - **Redeploy:** After adding or changing variables, trigger a **Redeploy** (or push a commit) so the new environment is loaded.  
+   - **No spaces:** Don’t put quotes or extra spaces in the value in the Railway UI; paste the key only.
 
 ---
 
@@ -387,7 +395,7 @@ Never commit `.env` to version control. For deployment, add the same variables t
 
 | Service        | What you get                    | Env vars |
 |----------------|----------------------------------|----------|
-| Supabase       | URL: Integrations → Data API; Key: Settings → API keys (Publishable key) | `SUPABASE_URL`, `SUPABASE_KEY` |
+| Supabase       | URL: Integrations → Data API; Key: Settings → API keys → **service_role** | `SUPABASE_URL`, `SUPABASE_KEY` |
 | Finnhub        | API key                         | `FINNHUB_API_KEY` |
 | CryptoPanic    | Integrate → API (token)        | `CRYPTOPANIC_API_KEY` |
 | Alpha Vantage  | API key (from email)             | `ALPHA_VANTAGE_API_KEY` |

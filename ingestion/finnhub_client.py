@@ -54,7 +54,10 @@ def poll_finnhub() -> int:
     Rate limit: ~1 call per second (60/min). Returns count of new articles inserted.
     """
     if not config.FINNHUB_API_KEY:
-        logger.warning("FINNHUB_API_KEY not set; skipping Finnhub fetch")
+        logger.warning(
+            "FINNHUB_API_KEY not set or empty; skipping Finnhub fetch. "
+            "On Railway: use exact name FINNHUB_API_KEY (two N's), set it in the service Variables, then redeploy."
+        )
         return 0
     to_dt = datetime.now(timezone.utc)
     from_dt = to_dt - timedelta(days=2)

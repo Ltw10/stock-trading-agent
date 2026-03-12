@@ -11,15 +11,28 @@ from sectors import VALID_SECTORS
 logger = logging.getLogger(__name__)
 
 _client: Client | None = None
+_supabase_auth_error_logged = False
 
 
 def get_client() -> Client:
     """Return singleton Supabase client."""
-    global _client
+    global _client, _supabase_auth_error_logged
     if _client is None:
         if not config.SUPABASE_URL or not config.SUPABASE_KEY:
             raise RuntimeError("SUPABASE_URL and SUPABASE_KEY must be set")
-        _client = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
+        try:
+            _client = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
+        except Exception as e:
+            err_msg = str(e).lower()
+            if "invalid api key" in err_msg or "invalid api key" in str(type(e).__name__):
+                if not _supabase_auth_error_logged:
+                    _supabase_auth_error_logged = True
+                    logger.error(
+                        "Supabase Invalid API key: use the service_role key (secret) for backend, "
+                        "not the anon/publishable key. In Supabase: Settings → API keys → service_role (secret). "
+                        "Redeploy after updating SUPABASE_KEY."
+                    )
+            raise
     return _client
 
 
@@ -61,7 +74,8 @@ def insert_news_article(
             return result.data[0]
         return None
     except Exception as e:
-        logger.exception("Failed to insert news article: %s", e)
+        if "invalid api key" not in str(e).lower():
+            logger.exception("Failed to insert news article: %s", e)
         return None
 
 
